@@ -1,0 +1,170 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta content="width=device-width, minimum-scale=1,initial-scale=1, maximum-scale=1, user-scalable=1;" id="viewport" name="viewport" />
+<!--离线应用的另一个技巧-->
+<meta content="yes" name="apple-mobile-web-app-capable" />
+<!--指定的iphone中safari顶端的状态条的样式-->
+<meta content="black" name="apple-mobile-web-app-status-bar-style" />
+<!--告诉设备忽略将页面中的数字识别为电话号码-->
+<meta content="telephone=no" name="format-detection" />
+<title>网上预约</title>
+<link rel="stylesheet" type="text/css" href="css/reservation.css">
+<link rel="stylesheet" href="css/LArea1.css">
+
+<script>
+
+</script>
+</head>
+<body background="#f2f3f7">
+<div class="index-bg">
+<!--主体部分-->
+	<div class="reservation-main">
+		<div class="reservation-main-xinxi">
+        	<div class="reservation-xinxi-con">
+                <div class="reservation-main-name">姓名</div>
+                <input type="text" placeholder="请输入姓名" class="yname" value="">
+                <div class="clear"></div>
+            </div>
+            <div class="reservation-xinxi-con">
+                <div class="reservation-main-name">性别</div>
+                <div class="reservation-main-more"><img src="images/jiantou.png"></div>
+          		<div class="reservation-main-text">
+                	<div class="content-block">
+                        <input id="demo2" type="text" readonly  value="" placeholder="请选择性别"/>
+                        <input id="value2" type="hidden" value=""/>
+                    </div>
+                </div>
+                <div class="clear"></div>
+            </div>
+            <div class="reservation-xinxi-con">
+                <div class="reservation-main-name">电话</div>
+                <input type="tel" maxlength="11" class="yphone" placeholder="请输入您的手机号码" id="phone-id" onkeyup="value=value.replace(/[^\d]/g,'')" onbeforepaste="clipboardData.setData('text',clipboardData.getData('text').replace(/[^\d]/g,''))">
+                <div class="clear"></div>
+            </div>
+            <div class="reservation-xinxi-con">
+                <div class="reservation-main-name">所在地区</div>
+                <div class="reservation-main-more"><img src="images/jiantou.png"></div>
+          		<div class="reservation-main-text">
+                	<div class="content-block">
+                        <input id="demo1" type="text" readonly  class="city" value="" placeholder="请选择地区"/>
+                        <input id="value1" type="hidden" value=""/>
+                    </div>
+                </div>
+                <div class="clear"></div>
+            </div>
+        </div>
+        <div class="reservation-main-xinxi" style="position: relative;">
+        	<textarea class="reservation-main-textarea" id="ynote" placeholder="备注"></textarea>
+            <span class="shu" style="color: #b70005;font-size: 18px;position: absolute;right: 5px;bottom: 5px">
+               <i style="font-style: normal;font-size: 18px" id="num">0</i>/120
+           </span>
+        </div>
+        <!-- <div class="shu" style="color: #b70005;font-size: 0.3rem;"></div> -->
+        <div class="reservation-main-ok" >确认提交</div>
+    </div>
+<!--主体部分-->
+    <script type="text/javascript" src="js/jquery-2.2.1.js"></script>
+	<script src="js/LAreaData1.js"></script>
+    <script src="js/LAreaData2.js"></script>
+    <script src="js/LArea.js"></script>
+    <script src="js/md5.js"></script>
+    <script src="js/index.js"></script> 
+    <script>
+    var write=$('.reservation-main-textarea')[0];
+    var shu=$('.shu')[0];
+    write.onkeyup=write.onkeypress=function(){      
+        var val=write.value;
+        var length=val.length;
+        if(length<=120){     
+              $('#num').text(length); 
+        }else{
+            var val=val.substr(0,120);
+             
+            write.value=val;
+        }
+    }
+     $("#phone-id").keydown(function(event) {  
+        var reg = /^\d{11}$/;  
+        var value = $(this).val();  
+        var e = event || window.event || arguments.callee.caller.arguments[0];   
+        if(e.keyCode === 8) {  return true; }    
+        if(e.keyCode == 32) {  return false; } 
+        if(reg.test(value)) { return false;}              
+    }); 
+    var area1 = new LArea5();
+    area1.init({
+        'trigger': '#demo1', //触发选择控件的文本框，同时选择完毕后name属性输出到该位置
+        'valueTo': '#value1', //选择完毕后id属性输出到该位置
+        'keys': {
+            id: 'id',
+            name: 'name'
+        }, //绑定数据源相关字段 id对应valueTo的value属性输出 name对应trigger的value属性输出
+        'type': 1, //数据源类型
+        'data': LAreaData //数据源
+    });
+    area1.value=[9,0,12];//控制初始位置，注意：该方法并不会影响到input的value
+	var area2 = new LArea();
+    area2.init({
+        'trigger': '#demo2', //触发选择控件的文本框，同时选择完毕后name属性输出到该位置
+        'valueTo': '#value2', //选择完毕后id属性输出到该位置
+        'keys': {
+            id: 'id',
+            name: 'name'
+        }, //绑定数据源相关字段 id对应valueTo的value属性输出 name对应trigger的value属性输出
+        'type': 1, //数据源类型
+        'data': LAreaData2 //数据源
+    });
+    area2.value=[0,0,0];//控制初始位置，注意：该方法并不会影响到input的value
+     // 网上预约
+    $('.reservation-main-ok').click(function(){
+        var yname=$('.yname').val();
+        var ysex=$('#demo2').val().replace(/^\s+|\s+$/g, '');
+        var yphone=$('.yphone').val();
+        var yaddr=$('#demo1').val();
+        var ynote=$('#ynote').val();
+        if(yname==""){alert("请输入姓名！");return false;}
+        else if(yname){
+            var re=/^([\u4E00-\u9FA5]|[\uFE30-\uFFA0]|[a-z])*$/gi;
+            if(!re.test(yname)){
+                alert("请输入正确的姓名！");
+                return false;
+            }
+        }
+        if(ysex==""){alert("请选择性别！");return false;}
+        if(ysex=="男"){ysex=1;}else{ysex=0;}
+        if(yphone==""){
+            alert("请填写手机号码！");
+            return false;
+        }else if(!(/^1[34578]\d{9}$/.test(yphone))){ 
+            alert("手机号码有误，请重填");
+            return false;  
+        }
+        if(yaddr==""){alert("请选择所在地区！");return false;}
+        if(ynote==""){
+            alert("请填写备注信息！");
+            return false;
+        }
+        var timestamp = Date.parse(new Date());
+        var values=['timestamp','name','sex','phone','address','note'];
+        var data={"timestamp":timestamp,"name":yname,"sex":ysex,"phone":yphone,"address":yaddr,"note":ynote};
+        var sign = doSign(values,data);
+        $.ajax({
+            type:"POST",
+            url:url+'onlineBooking.action',
+            dataType:"json",
+            data:{"name":yname,"sex":ysex,"phone":yphone,"address":yaddr,"note":ynote,"timestamp":timestamp,"sign":sign},
+            success: function(data){
+                if(data.status == 1){
+                    alert('网上预约成功！')
+                    window.location.href="reservation.html";
+                }                
+            }   
+        });
+    });
+    </script>
+
+</div>
+</body>
+</html>

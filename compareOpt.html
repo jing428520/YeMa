@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta content="width=device-width, minimum-scale=1,initial-scale=1, maximum-scale=1, user-scalable=1;" id="viewport" name="viewport" />
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="format-detection" content="telephone=no">
+	<title>车型对比</title>
+    <link rel="stylesheet" href="css/LArea2.css">
+    <link rel="stylesheet" href="css/jquery.mobile-1.4.3.min.css" />
+    <link rel="stylesheet" href="css/index.css">
+</head>
+<body>
+    <section>
+        <div id="container">
+          <div data-role="page">
+            <div data-role="content">
+              <ul data-role="listview" class="swipe-delete">
+              </ul>
+            </div>
+          </div>
+        </div>
+          <div class="type_contarast_add">
+            <div class="type_contarast_add1">
+                <span  id="demo7">+添加车款<input type="text" id="demo7" value="+添加车款" readonly="true" hidden="">
+                <input id="value7" type="hidden" value=""/>
+                </span>
+            </div>
+            <div class="type_contarast_add2">
+                <span>对比（<i>0</i>）</span>
+            </div>
+        </div> 
+        <p class="tip" style="position:fixed;width:100%;height:100px;margin:auto;left: 0;right: 0;top: 0;bottom: 0;display: none;text-align: center;line-height: 100px;">还没有添加对比的车型！</p> 
+        <div class="gearArea"></div>
+    </section>
+    <script src="js/jquery-2.2.1.js"></script>
+    <script type="text/javascript" src="js/jquery.mobile-1.4.3.min.js"></script>
+	<script src="js/LAreaData1.js"></script>
+    <script src="js/LArea1.js"></script>
+    <script src="js/md5.js"></script>
+    <script src="js/index.js"></script>
+    <script>
+    $('.gearArea').css({'backgroundColor':'transparent','display':'none'});
+    var id = parseUrl().id; 
+    //页面跳转
+    // $('#cop').attr('href','carParameter.html?id='+id);
+    //通过车系获取车型
+    var LAreaData3=[{"id":"2","name":"","child":[]}];
+    var timestamp = Date.parse(new Date());
+    var values=['timestamp','carSeriesId'];
+    var data={'timestamp':timestamp,'carSeriesId':id};
+    var sign = doSign(values,data);
+    $.ajax({
+        type: "post",
+        url : url+'getCarModelByCarSeries.action', 
+        data:{'carSeriesId':id,'timestamp':timestamp,'sign':sign},
+        dataType : "json",
+        success : function(data){
+            if(data.status = 1){
+                $.each(data.object,function(i,v){
+                LAreaData3[0].child.push(v);  
+                var area7 = new LArea1();
+                    area7.init({
+                        'trigger': '#demo7',
+                        'valueTo': '#value7',
+                        'keys': {
+                            id: 'carModelId',
+                            name: 'name',
+                        },
+                        'type': 1,
+                        'data': LAreaData3
+                    });
+                })
+            } 
+        },
+        error:function(){}
+    });
+    
+    // 对比列表
+    var timestamp1 = Date.parse(new Date());
+    var values1=['timestamp','carSeriesId'];
+    var data1={'timestamp':timestamp1,'carSeriesId':id};
+    var sign = doSign(values1,data1);
+    $.ajax({
+        type : "post",
+        url : 'http://yema.hangtuosoft.com/app/CarContrastList.action', 
+        dataType : "json",
+        data:{'timestamp':timestamp1,'sign':sign,'carSeriesId':id},
+        success : function(data){
+            if(data.status == 1){
+                    $('.type_contarast_add2').attr('com_num',data.object.length);
+                    // 遍历对比的车型数据
+                    $.each(data.object,function(i,v){
+                        $('<li class="ui-first-child" data-role="'+v.carContrastId+'"><div class="behind"><a href="#" class="ui-btn delete-btn" style="height: 0.6rem;line-height: 0.6rem;">删除</a></div><a href="" style="background-color: rgb(255, 255, 255); border-color: t ransparent; height: 0.6rem; line-height: 0.6rem; color: rgb(102, 102, 102); font-weight: 400; left: 0px;" class="ui-btn ui-btn-icon-right ui-icon-carat-r">'+v.carModelCustom.name+'</a></li>').appendTo($('.swipe-delete'))
+                        $('.type_contarast_add2 i').html(data.object.length);
+                    }) 
+                    var com_num=$('.type_contarast_add2').attr('com_num');
+                    if( $('.type_contarast_add2').attr('com_num') == 0){
+                        alert('还未添加车型')}
+
+                    //滑动删除
+                    function prevent_default(e) { e.preventDefault();}
+                    function disable_scroll() {  $(document).on('touchmove', prevent_default);}
+                    function enable_scroll() {$(document).unbind('touchmove', prevent_default);}
+                    var x;
+                    $('.swipe-delete li > a')
+                        .on('touchstart', function(e) {
+                            $('.swipe-delete li > a').css('left', '0px') // close em all
+                            $(e.currentTarget).addClass('open')
+                            x = e.originalEvent.targetTouches[0].pageX // anchor point
+                        })
+                        .on('touchmove', function(e) {
+                            var change = e.originalEvent.targetTouches[0].pageX - x
+                            change = Math.min(Math.max(-100, change), 0) // restrict to -100px left, 0px right
+                            e.currentTarget.style.left = change + 'px'
+                            if (change < -10) disable_scroll() // disable scroll once we hit 10px horizontal slide
+                        })
+                        .on('touchend', function(e) {
+                            var left = parseInt(e.currentTarget.style.left)
+                            var new_left;
+                            if (left < -35) {
+                                new_left = '-100px'
+                            } else if (left > 35) {
+                                new_left = '100px'
+                            } else {
+                                new_left = '0px'
+                            }
+                            $(e.currentTarget).animate({left: new_left}, 200)
+                            enable_scroll()
+                        });
+                        $('li .delete-btn').on('touchend', function(e) {
+                            e.preventDefault()
+                            $(this).parents('li').slideUp('fast', function() {
+                                $(this).remove();
+                                var carContrastId = $(this).attr('data-role');
+                                var timestamp3 = Date.parse(new Date());
+                                var values3=['timestamp','carContrastId'];
+                                var data3={'timestamp':timestamp3,'carContrastId':carContrastId};
+                                var sign3 = doSign(values3,data3);
+                                                       
+                                $.ajax({
+                                    type : "post",
+                                    url : 'http://yema.hangtuosoft.com/app/deleteCarContrast.action', 
+                                    dataType : "json",
+                                    data:{"carContrastId":carContrastId,'timestamp':timestamp3,'sign':sign3},
+                                    success : function(data){
+                                    console.log(data); 
+                                        if(data.status == 1){
+                                            
+                                            $('.type_contarast_add2').attr('com_num',data.object.length);
+                                            $('.type_contarast_add2 i').html(data.object.length);
+                                            if( data.object.length == 0){
+                                                    alert('还未添加车型!')
+                                            }
+                                        }}
+                               })
+                            }) 
+                        }) 
+                    //滑动删除结束
+                }
+        }
+        //success结束
+    });
+ $('.type_contarast_add2').on('click',function(){
+    if( $(this).attr('com_num') == 0 ){
+       alert('还未添加车型!');
+    }else if( $(this).attr('com_num') == 1 ){
+        alert('至少添加两种车型!');
+    }else{
+        window.location.href='carParameter.html?id='+id+'&type=2';
+    }
+});
+    </script>
+</body>
+</html> 
+

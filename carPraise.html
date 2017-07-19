@@ -1,0 +1,142 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title></title>
+    <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=0">
+    <link rel="stylesheet" href="css/weui.css"/>
+    <link rel="stylesheet" href="css/weui2.css"/>
+    <style>
+    .weui-comment{font-size: 15px;}
+    .weui-comment-item{height: 150px;}
+    .fl{float: left;}
+    .fr{float: right;}
+    .ym_img_title{height: 50px;}
+    .fix{width:100%;position: fixed;bottom: 0;}
+    .dropload-down{margin-bottom: 50px;}
+    .h95{line-height: 60px;}
+    #ym_70 {width: 100%;height:50px;background: #fff;position: fixed;top: 0;z-index: 999;}
+    #ym_70 .ym_t70 {height:50px;}
+    #ym_70 .ym_t70 li {width: 33.33%;height: 50px;float: left;color: #999;line-height: 50px;text-align: center;list-style: none;}
+    #ym_70 .ym_t70 li a{color: #999;}
+    #ym_70 .ym_t70 li.ym_active {border-bottom:2px solid #b70005;}
+    #ym_70 .ym_t70 li.ym_active a{color: #c53337;}
+    </style>
+    <script src="js/zepto.min.js"></script> 
+    <script src="js/updown.js"></script>
+    <script src="js/lazyimg.js"></script>
+    <script src="js/md5.js"></script>
+    <script src="js/index.js"></script>
+    <script>
+    var id = parseUrl().id;
+    $(function(){
+        //页数 
+        var page = 0;
+        // 每页展示10个
+        var size =10;
+        $('.weui_panel').dropload({
+            scrollArea : window,
+            autoLoad : true,//自动加载
+            domUp : {//下拉
+                domClass   : 'dropload-up',
+                domRefresh : '<div class="dropload-refresh"><i class="icon icon-114"></i>上拉加载更多</div>',
+                domUpdate  : '<div class="dropload-load f15"><i class="icon icon-20"></i>释放更新...</div>',
+                domLoad    : '<div class="dropload-load f15"><span class="weui-loading"></span>正在加载中...</div>'
+            },
+            loadDownFn : function(me){//加载更多
+                page++;
+                window.history.pushState(null, document.title, window.location.href);
+                var result = '';
+                var timestamp = Date.parse(new Date());
+                var values=['timestamp','beginRow','carSeriesId'];
+                var data={'timestamp':timestamp,'beginRow':page,'carSeriesId':id};
+                var sign = doSign(values,data);
+                $.ajax({
+                    type: 'post',
+                    url : url+'commentList.action',
+                    dataType: 'json',
+                    data:{"beginRow":page,'timestamp':timestamp,'sign':sign,'carSeriesId':id},
+                    success: function(data){
+                        console.log(data);
+                        if(data.status == 1){
+                            var dataList = data.object.dataList;
+                            var arrLen = data.object.dataList.length;
+                            if(arrLen > 0){
+                                for(var i=0; i<arrLen; i++){
+                                    result += '<li class="weui-comment-item" style="padding: 0 5%;">' 
+                                        +'<div class="ym_img_title">'
+                                        +'<img src="'+dataList[i].imgUrl+'" alt="" class="ym_content_img fl" style="width: 50px;height:50px;border-radius: 50%;">'
+                                        +'<span class="ym_content_title fl" style="margin-top: 10px;margin-left: 10px;">'+dataList[i].nickName+'</span>'
+                                        +'<span class="ym_content_time fr" style="margin-top: 10px;">'+dataList[i].createDate+'</span>'
+                                        +'</div>'
+                                        +'<p class="ym_content_container" style="word-break: break-word;margin-top: 10px;">'+dataList[i].content+'</p>'
+                                        +'<p class="ym_content_type" style="color: #adadad;margin-top: 10px;">'+dataList[i].carSeriesCustom.name+' '+dataList[i].carModelCustom.name+'</p>'
+                                        +'</li>'
+                            }
+                            // 如果没有数据
+                            }else{
+                            // 锁定
+                                me.lock();
+                            // 无数据
+                                me.noData();
+                            }
+                        }
+                        // 为了测试，延迟1秒加载
+                        setTimeout(function(){
+                            $('.weui-comment').append(result);  
+                            var lazyloadImg = new LazyloadImg({
+                                el: '.weui-updown [data-img]', //匹配元素
+                                top: 50, //元素在顶部伸出长度触发加载机制
+                                right: 50, //元素在右边伸出长度触发加载机制
+                                bottom: 50, //元素在底部伸出长度触发加载机制
+                                left: 50, //元素在左边伸出长度触发加载机制
+                                qriginal: false, // true，自动将图片剪切成默认图片的宽高；false显示图片真实宽高
+                                load: function(el) {
+                                    el.style.cssText += '-webkit-animation: fadeIn 01s ease 0.2s 1 both;animation: fadeIn 1s ease 0.2s 1 both;';
+                                },
+                                error: function(el) {
+                                }
+                            });
+                           // 
+                            // 每次数据加载完，必须重置
+                            me.resetload();
+                        },1000);
+                    },
+                    error: function(xhr, type){
+                        // alert('Ajax error!');
+                        // 即使加载出错，也得重置
+                        me.resetload();
+                    }
+                });
+            }
+        });  
+    });
+    </script>      
+</head>
+<body ontouchstart>
+<div id="ym_70">
+    <ul class="ym_t70">
+        <li class="ym_decription"><a href="">综述</a></li>
+        <li class="ym_canshu"><a href="">参数</a></li>
+        <li class="ym_koubei ym_active"><a href="">口碑</a></li>
+    </ul>
+    <div class="hr_7"></div>
+</div>
+<div style="height: 45px;width: 100%;"></div>
+<div class="weui_panel weui_panel_access">
+    <div class="weui_panel_bd">
+        <ul class="weui-comment">
+        </ul>
+    </div>
+</div>
+<a href="javascript:;" class="weui_btn weui_btn_primary fix h95 push_koubei" style="background: #b70005;">发表</a>
+<script> 
+// 页面跳转
+$('.ym_decription a').attr('href','carSummary.html?id='+id);
+$('.ym_canshu a').attr('href','carParameter.html?id='+id+'&type=3');
+$('.ym_koubei a').attr('href','carPraise.html?id='+id);
+$('.push_koubei').attr('href','push.html?id='+id);
+</script>
+</body>
+
+</html>

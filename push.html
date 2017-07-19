@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta content="yes" name="apple-mobile-web-app-capable">
+	<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+	<title>发口碑</title>
+	<link rel="stylesheet" href="css/index.css">
+	<link rel="stylesheet" href="css/LArea2.css">
+</head>
+<body>
+<section>
+	<div class="hr_16"></div>
+	<ul class="car_publicPraise">
+		<li class="car_type">
+			<span>车型</span>
+			<input type="text" value="" class="car_type_text" readonly="" id="carT">
+	    </li>
+		<li class="car_style">
+			<span>车款</span>
+			<input id="demo5" type="text" readonly="" placeholder="请选择车款"  value="" class="car_type_text" name="" />
+            <input id="value5" type="hidden"/>
+		</li>
+	</ul>
+	<div class="hr_16"></div>
+	<div style="position: relative;">
+		<textarea class="car_talk" id="textarea" onkeyup="value=value.replace(/[^\a-\z\A-\Z0-9\u4E00-\u9FA5\.]/g,'')" onpaste="value=value.replace(/[^\a-\z\A-\Z0-9\u4E00-\u9FA5\.]/g,'')" oncontextmenu = "value=value.replace(/[^\a-\z\A-\Z0-9\u4E00-\u9FA5\.]/g,'')" value="" placeholder="写下你的口碑" ></textarea>
+		<span class="shu" style="color: #b70005;font-size: 0.3rem;position: absolute;right: 0.2rem;bottom: 0.2rem">
+		    <i style="font-style: normal;" id="num">0</i>/120
+		</span>
+	</div>
+	<div class="tips">请您填写您的用车感受哦!</div>
+	
+	<div class="car_push">
+		发表
+	</div>
+	<div class="gearArea"></div>
+</section>
+	<script src="js/LAreaData1.js"></script>
+    <script src="js/LAreaData2.js"></script>
+    <script src="js/LArea3.js"></script>
+    <script src="js/jquery-2.2.1.js"></script>
+    <script src="js/md5.js"></script>
+    <script src="js/index.js"></script>
+    <script>
+    var write=$('.car_talk')[0];
+	var shu=$('.shu')[0];
+	write.onkeyup=write.onkeypress=function(){
+		$('.tips').css('display','none');
+		var val=write.value;
+		var length=val.length;
+		if(length<=120){	
+		   $('#num').text(length);
+		}else{
+			var val=val.substr(0,120);
+			write.value=val;
+		}
+	}
+    $('.gearArea').css({'backgroundColor':'transparent','display':'none'});
+    
+    var timestamp = Date.parse(new Date());
+	var id = parseUrl().id;
+    //通过车系获取车型
+	var values1=['timestamp','carSeriesId'];
+    var data2={'timestamp':timestamp,'carSeriesId':id};
+    var sign1 = doSign(values1,data2);
+	var LAreaData3=[{"id":"2","name":"","child":[]}];
+	$.ajax({
+		type: "post",
+		url : url+'getCarModelByCarSeries.action', 
+		data:{'carSeriesId':id,'timestamp':timestamp,'sign':sign1},
+		dataType : "json",
+		success : function(data){
+			if(data.status = 1){
+				$.each(data.object,function(i,v){
+				LAreaData3[0].child.push(v);		
+				var area5 = new LArea10();
+				    area5.init({
+				        'trigger': '#demo5',
+				        'valueTo': '#value5',
+				        'keys': {
+				            id: 'carModelId',
+				            name: 'name'
+				        },
+				        'type': 1,
+				        'data': LAreaData3
+				    });
+				})
+				
+			} 
+		},
+		error:function(){}
+	});
+    function textdown(e) {
+	    textevent = e;
+	    if (textevent.keyCode == 8) {
+	        return;
+	    }
+	    if (document.getElementById('textarea').value.length >= 100) {
+	    
+	        if (!document.all) {
+	            textevent.preventDefault();
+	        } else {
+	            textevent.returnValue = false;
+	        }
+	    }
+	}
+	function textup() {
+	    var s = document.getElementById('textarea').value;
+	    //判断ID为text的文本区域字数是否超过100个 
+	    if (s.length > 100) {
+	        document.getElementById('textarea').value = s.substring(0, 100);
+	    }
+	}
+	var timestamp1 = Date.parse(new Date());
+	var values = ['carSeriesId','timestamp'];
+	var data = {'carSeriesId':id,'timestamp':timestamp1};
+	var sign = doSign(values,data);
+    // 通过id获取车辆信息
+    $.ajax({
+        type: "post",
+        url : 'http://yema.hangtuosoft.com/app/wechatGetCarSeriesById.action', 
+        data:{'carSeriesId':id,'timestamp':timestamp1,'sign':sign},
+        dataType : "json",
+        success : function(data){
+        	if(data.status == 1){
+        	    $('#carT').val(data.object.name);    		      
+     	    }
+	    }
+	});  
+	
+    $('.car_push').on('click',function(){
+    	var carModel = $('#demo5').val();
+    	var carModelId = $('#value5').val().substring(10);
+    	var val = $('#textarea').val();
+    	if( carModel == ""){alert('请选择车款！')}
+    	
+    	else if( $('#textarea').val() == ""){
+    		$('.car_push a').attr('href','javascript:void(0)');
+    		$('.tips').css('display','block');
+    		$('.shu').css('display','block');
+    	}else{
+    		$('.tips').css('display','none');
+    	var timestamp = Date.parse(new Date());
+		var values = ["carSeriesId","carModelId","content","timestamp"];
+		var data={"carSeriesId":id,"carModelId":carModelId,"content":val,"timestamp":timestamp};
+		var sign = doSign(values,data);
+    		$.ajax({
+		        type: "post",
+		        url : 'http://yema.hangtuosoft.com/app/addComment.action', 
+		        data:{
+		        	'carSeriesId':id,
+		        	'carModelId':carModelId,
+		        	'content':val,
+		        	'timestamp':timestamp,
+		        	'sign':sign
+		        },
+		        dataType : "json",
+		        success : function(data){
+		        	console.log(data)
+		        	if(data.status == 1){
+		        		window.location.href='carPraise.html?id='+id;
+		        	}	 
+			    },
+			    error:function(){}
+			});   
+    	}
+    })
+    </script>
+</body>
+</html> 

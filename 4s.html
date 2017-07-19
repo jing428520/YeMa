@@ -1,0 +1,200 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta content="width=device-width, minimum-scale=1,initial-scale=1, maximum-scale=1, user-scalable=1;" id="viewport" name="viewport" />
+<!--离线应用的另一个技巧-->
+<meta content="yes" name="apple-mobile-web-app-capable" />
+<!--指定的iphone中safari顶端的状态条的样式-->
+<meta content="black" name="apple-mobile-web-app-status-bar-style" />
+<!--告诉设备忽略将页面中的数字识别为电话号码-->
+<meta content="telephone=no" name="format-detection" />
+<title>4S店</title>
+<link rel="stylesheet" type="text/css" href="css/reservation.css">
+<link rel="stylesheet" href="css/LArea1.css">
+<script type="text/javascript" src="js/jquery-2.2.1.js"></script>
+<script type="text/javascript" src="js/alertShow.js"></script>
+</head>
+<body style="background:#f2f3f7;">
+<div id="overlay"></div>
+<div class="index-bg">
+<!--主体部分-->
+	<div class="four-main">
+    	<div class="four-main-top">
+        <div class="four-mains">
+          <div class="four-main-top-l" id="">
+              <input id="demo1" type="text" readonly  class="citys" value=""/>
+              <input id="value1" type="hidden" value="34,10,18"/>
+          </div>
+          <div class="clear"></div>
+        </div>
+      </div>
+      <div class="four_content"></div>
+  </div>
+  <div id="tip" style="width: 100%;height: 100px;display: none;"></div>
+</div>
+<div id="container"></div>
+<!--主体部分-->
+<script src="js/LAreaData1.js"></script>
+<script src="js/LAreaData2.js"></script>
+<script src="http://webapi.amap.com/maps?v=1.3&key=c493d7fedda324d9f3648b9b2d52212f"></script>
+<script src="js/md5.js"></script>
+<script src="js/index.js"></script> 
+<script src="js/LArea.js"></script>
+<script>
+    mapObj = new AMap.Map('iCenter');
+    mapObj.plugin('AMap.Geolocation', function () {
+    geolocation = new AMap.Geolocation({
+        enableHighAccuracy: true,//是否使用高精度定位，默认:true
+        timeout: 10000,          //超过10秒后停止定位，默认：无穷大
+        maximumAge: 0,           //定位结果缓存0毫秒，默认：0
+        convert: true,           //自动偏移坐标，偏移后的坐标为高德坐标，默认：true
+        showButton: true,        //显示定位按钮，默认：true
+        buttonPosition: 'LB',    //定位按钮停靠位置，默认：'LB'，左下角
+        buttonOffset: new AMap.Pixel(10, 20),//定位按钮与设置的停靠位置的偏移量，默认：Pixel(10, 20)
+        showMarker: true,        //定位成功后在定位到的位置显示点标记，默认：true
+        showCircle: true,        //定位成功后用圆圈表示定位精度范围，默认：true
+        panToLocation: true,     //定位成功后将定位到的位置作为地图中心点，默认：true
+        zoomToAccuracy:true      //定位成功后调整地图视野范围使定位位置及精度范围视野内可见，默认：false
+    });
+
+    mapObj.addControl(geolocation);
+    geolocation.getCurrentPosition();
+    AMap.event.addListener(geolocation, 'complete', onComplete);//返回定位信息
+    AMap.event.addListener(geolocation, 'error', onError);      //返回定位出错信息
+  });
+   //解析定位结果
+    function onComplete(data) {
+      
+        var str=['定位成功'];
+        str.push('经度：' + data.position.getLng());
+        str.push('纬度：' + data.position.getLat());
+        str.push('精度：' + data.accuracy + ' 米');
+        str.push('是否经过偏移：' + (data.isConverted ? '是' : '否'));
+        document.getElementById('tip').innerHTML = str.join('<br>');
+        var jing = String(data.position.getLng());
+        var wei = String(data.position.getLat());  
+        var map = new AMap.Map('container',{
+            resizeEnable: true,
+            zoom: 13,
+            center: [116.39,39.9]
+        });
+        var lnglatXY=[jing,wei];
+        var location = jing + ","+wei;
+        AMap.plugin('AMap.Geocoder',function(){
+          var geocoder = new AMap.Geocoder({
+              city: "010"//城市，默认：“全国”
+          });
+          var marker = new AMap.Marker({
+              map:map,
+              bubble:true
+          })       
+          geocoder.getAddress(lnglatXY,function(status,result){
+            if(status=='complete'){
+                var result = result.regeocode.formattedAddress;
+                var result1 = result.replace('省',' ');
+                var  dex = result1.indexOf('市');
+                var result2 = result1.substring(0,dex+1);
+                $('#demo1').val(result2);
+                var address =$('#demo1').val(); 
+                var timestamp = Date.parse(new Date());
+                var values=['timestamp','address','longitudeLatitude'];
+                var data={'timestamp':timestamp,'longitudeLatitude':location,'address':address};
+                var sign = doSign(values,data);
+                $.ajax({
+                  type: "post",
+                  url : url+'getDealerPosition.action', 
+                  data:{'longitudeLatitude':location,'address':address,'timestamp':timestamp,'sign':sign},
+                  dataType : "json",
+                  success : function(data){
+                    if(data.status == 1){
+                      $('.four_content').empty();
+                      $.each(data.object,function(i,v){
+                        $('<div class="four-main-con"><div class="four-main-con-l"><div class="four-main-con-l-name">'+v.name+'</div><div class="four-main-con-l-addr">'+v.address+'</div><div class="four-main-con-l-addr">'+v.distance+'m</div></div><div class="four-main-con-r"><div class="four-main-con-r-img con_phone" data-role="'+v.phone+'"><img src="images/r-phone.png"></div><a href="javascript:(0);" class="map"><div class="four-main-con-r-img con_map" data-id="'+v.longitudeLatitude+'"><img src="images/g-addr.png"></div></a><div class="clear"></div></div><div class="clear"></div></div>').appendTo($('.four_content'));
+                          AMap.plugin('AMap.Geocoder',function(){
+                              var geocoder = new AMap.Geocoder({
+                                  city: "010"//城市，默认：“全国”
+                              });
+                              var marker = new AMap.Marker({
+                                  map:map,
+                                  bubble:true
+                              });
+                              var address = v.address;
+                              geocoder.getLocation(address, function(status, result) {
+                                if (status === 'complete') {
+                                     $('.con_map').on('click',function(){
+                                        console.log($(this));
+                                        var dataId = $(this).attr('data-id');
+                                        console.log(dataId);
+                                        $('.map').attr('href','http://m.amap.com/navi/?start='+location+'&dest='+dataId+'&destName=路线&naviBy=car&key=c493d7fedda324d9f3648b9b2d52212f')
+
+                                      })
+                                     
+                                }else{
+                                }
+                            });
+                          });
+                         
+                          $('.con_phone').on('click', function(){
+                                var phone = $(this).attr('data-role');
+                                  $('#overlay').css('display','block');
+                                  var docHeight = $(document).height(); //获取窗口高度  
+                                  $('#overlay')  
+                                      .height(docHeight)  
+                                      .css({  
+                                        'opacity': .5, //透明度  
+                                        'position': 'absolute',  
+                                        'top': 0,  
+                                        'left': 0,  
+                                        'background-color': 'black',  
+                                        'width': '100%',  
+                                        'z-index': 99 //保证这个悬浮层位于其它内容之上  
+                                   });  
+                                  popTipShow.confirm('拨打4S店电话',phone,['确 定','取 消'],
+                                      function(e){
+                                        //callback 处理按钮事件
+                                        var button = $(e.target).attr('class');
+                                        if(button == 'ok'){
+                                          //按下确定按钮执行的操作
+                                          //todo ....             
+                                          $('#overlay').css('display','none');
+                                          $('.phone').attr('href','tel:'+phone);
+                                          this.hide();
+                                        }
+                                        if(button == 'cancel') {
+                                          //按下取消按钮执行的操作
+                                          //todo ....
+                                          $('#overlay').css('display','none');
+                                          this.hide(); 
+                                        }
+                                      }
+                                  );
+                          });
+                      })
+                    } 
+                  },
+                  error:function(){}
+                });
+            }
+          })
+        });  
+    }
+     //解析定位错误信息
+    function onError(data) {
+        document.getElementById('tip').innerHTML = '定位失败';
+    }
+    var area1 = new LArea2();
+    area1.init({
+        'trigger': '#demo1', //触发选择控件的文本框，同时选择完毕后name属性输出到该位置
+        'valueTo': '#value1', //选择完毕后id属性输出到该位置
+        'keys': {
+            id: 'id',
+            name: 'name'
+        }, //绑定数据源相关字段 id对应valueTo的value属性输出 name对应trigger的value属性输出
+        'type': 1, //数据源类型
+        'data': LAreaData8 //数据源
+    });
+    area1.value=[9,0,12];//控制初始位置，注意：该方法并不会影响到input的value
+  </script>
+</body>
+</html>

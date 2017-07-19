@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta content="width=device-width, minimum-scale=1,initial-scale=1, maximum-scale=1, user-scalable=no;" id="viewport" name="viewport" />
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="format-detection" content="telephone=no">
+	<title></title>
+	<link rel="stylesheet" href="css/swiper.css">
+	<link rel="stylesheet" href="css/index.css">
+</head>
+<body>
+<section>
+    <div id="ym_70" class="fixLimit">
+   	    <ul class="ym_t70">
+			<li class="ym_decription ym_active"><a href="">综述</a></li>
+			<li class="ym_canshu"><a href="">参数</a></li>
+			<li class="ym_koubei"><a href="">口碑</a></li>
+	    </ul>
+    </div>
+	<div class="hr_3 marTop_90"></div>
+	<div class="car_compare">
+	    <a href="">
+            <img src="" alt="" />
+	        <div class="img_num"><i></i>张图片</div>
+	    </a>
+	</div>
+	<div class="market_price">市场指导价<i></i></div>
+	<div class="hr_20"></div>
+	<div class="swiper-container" style="background: #fff">
+    	<ul class="model swiper-wrapper"></ul> 	    	
+    </div>
+	<div class="hr_16"></div>
+	<div class="carSeries">
+	    <div class="hr_10"></div>
+		<div class="carModel_1"></div>
+    </div>
+	<div class="hr_240"></div>
+	<div class="carModel_compare fixLimit">
+	    <a href="" id="carCom">
+		    <div class="carModel_com">对比<span class="cir"></span></div>
+		</a>
+	</div>
+	<a href=" " id="buyC"><div class="car_buy fixLimit">我要买车</div></a>
+  </section>
+  <script src="js/jquery-2.2.1.js"></script>
+  <script src="js/swiper.js"></script>
+  <script src="js/md5.js"></script>
+  <script src="js/index.js"></script>
+  <script>
+  	var Swiper1 = new Swiper('.swiper-container',{slidesPerView : 2,}); 
+  </script>
+  <script>
+    // 解析地址
+    var id = parseUrl().id;
+	// 地址跳转
+	$('.car_compare a').attr('href','YeMaPic.html?id='+id);
+	$('.ym_canshu a').attr('href','carParameter.html?id='+id+'&type=3');
+	$('.ym_koubei a').attr('href','carPraise.html?id='+id);
+	$('#buyC').attr('href','buyCar2.html?id='+id);
+	$('#carCom').attr('href','compareOpt.html?id='+id);
+	
+	var timestamp = Date.parse(new Date());
+	var values = ['carSeriesId','timestamp'];
+	var data = {'carSeriesId':id,'timestamp':timestamp};
+	var sign = doSign(values,data);
+    // 通过id获取车辆信息
+    $.ajax({
+        type: "post",
+        url : 'http://yema.hangtuosoft.com/app/wechatGetCarSeriesById.action', 
+        data:{'carSeriesId':id,'timestamp':timestamp,'sign':sign},
+        dataType : "json",
+        success : function(data){       	
+        	if(data.status == 1){
+				wxSetTitle(data.object.name);   		 
+        		$('.car_compare img').attr("src",imgUrl+data.object.imgUrl);
+        		$('.market_price i').text(data.object.priceRange);
+       	        $('.img_num i').text(data.object.pictureNum);
+       	        $.each(data.object.carTypeCustoms,function(i,v){	       	
+       	        	$('<li class="carModel_item swiper-slide" data-num="'+i+'" style="width: 50%">'+v.name+'</li>').appendTo($('.model'));
+       	        });
+   	        	$('.carModel_item:first').addClass('active');
+   	        	$.each(data.object.carTypeCustoms[0].carTypeCustoms,function(n,m){
+   	        		if(m.carTypeId == -1){
+   	        			$('<div class="carModel_tit">'+m.name+'</div>').appendTo($('.carModel_1'));
+   	        		}else{
+   	        			$('<div class="carModel_tit">'+m.name+'</div>').appendTo($('.carModel_1'));
+   	        		    $.each(m.carModelCustoms,function(x,y){
+   	        		    	if(y.carModelId == -1){
+                                 $('<div class="carModel_detail"><span class="leftArea">'+y.name+'</span><span class="rightArea price"></span></div><div class="hr_7"></div>').appendTo($('.carModel_1'));
+   	        		    	}else{
+	   	        		    	if(y.isContrast == 1){
+		   	        				$('<div class="carModel_detail"><span class="leftArea">'+y.name+'</span><span class="rightArea price">'+y.price+'万</span></div><ul class="carModel_option"><li class="carModel_optItem"><a href="javascript:void(0);" class="add complete" data-role="'+y.carModelId+'" >已加入</a></li><li class="carModel_optItem buy"><a href="car-calculator1.html?id='+y.carModelId+'&price='+y.price*10000+'&carModelId='+y.carModelId+'">购车计算</a></li><li class="carModel_optItem"><a href="buyCar2.html?id='+m.carSeriesId+'&carModelId='+y.carModelId+'">我要买车</a></li></ul><div class="hr_7"></div>').appendTo($('.carModel_1'));
+		   	        			}else{
+		   	        				$('<div class="carModel_detail"><span class="leftArea">'+y.name+'</span><span class="rightArea price">'+y.price+'</span></div><ul class="carModel_option"><li class="carModel_optItem"><a href="javascript:void(0);" class="add" data-role="'+y.carModelId+'" >加入对比</a></li><li class="carModel_optItem buy"><a href="car-calculator1.html?id='+y.carModelId+'&price='+y.price*10000+'&carModelId='+y.carModelId+'">购车计算</a></li><li class="carModel_optItem"><a href="buyCar2.html?id='+m.carSeriesId+'&carModelId='+y.carModelId+'">我要买车</a></li></ul><div class="hr_7"></div>').appendTo($('.carModel_1'));
+		   	        			}	
+
+   	        		    	}
+	   	        			
+   	        		    })
+   	        		}   	        		
+   	        	})
+   	        	$('.model').on('click','.carModel_item',function(){
+				  	$('.carModel_item').removeClass('active');
+				  	$(this).toggleClass('active');
+				    var num=$(this).attr('data-num');
+				    $('.carModel_1').empty();
+				    $.each(data.object.carTypeCustoms[num].carTypeCustoms,function(n1,m1){  	
+   	        		    $('<div class="carModel_tit">'+m1.name+'</div>').appendTo($('.carModel_1'));
+	   	        		$.each(m1.carModelCustoms,function(x,y){
+		   	        		if(y.carModelId == -1){
+		   	        			$('<div class="carModel_detail"><span class="leftArea">'+y.name+'</span><span class="rightArea price"></span></div><div class="hr_7"></div>').appendTo($('.carModel_1'));
+		   	        		}else{
+		   	        			if(y.isContrast == 1){
+		   	        				$('<div class="carModel_detail"><span class="leftArea">'+y.name+'</span><span class="rightArea price">'+y.price+'万</span></div><ul class="carModel_option"><li class="carModel_optItem"><a href="javascript:void(0);" class="add complete" data-role="'+y.carModelId+'" >已加入</a></li><li class="carModel_optItem buy"><a href="car-calculator1.html?id='+y.carModelId+'&price='+y.price*10000+'&carModelId='+y.carModelId+'">购车计算</a></li><li class="carModel_optItem"><a href="buyCar2.html?id='+m1.carSeriesId+'&carModelId='+y.carModelId+'">我要买车</a></li></ul><div class="hr_7"></div>').appendTo($('.carModel_1'));
+		   	        			}else{
+		   	        				$('<div class="carModel_detail"><span class="leftArea">'+y.name+'</span><span class="rightArea price">'+y.price+'万</span></div><ul class="carModel_option"><li class="carModel_optItem"><a href="javascript:void(0);" class="add" data-role="'+y.carModelId+'" >加入对比</a></li><li class="carModel_optItem buy"><a href="car-calculator1.html?id='+y.carModelId+'&price='+y.price*10000+'&carModelId='+y.carModelId+'">购车计算</a></li><li class="carModel_optItem"><a href="buyCar2.html?id='+m1.carSeriesId+'&carModelId='+y.carModelId+'">我要买车</a></li></ul><div class="hr_7"></div>').appendTo($('.carModel_1'));
+		   	        			}
+		   	        		}		   	        			 		
+	   	        		})
+   	        	    });
+   	        	    addCarContrast();
+			    });
+                 // 添加对比
+                addCarContrast();
+     	    }
+	    }
+	});
+
+// 加入对比
+function addCarContrast(){
+   $('.carModel_optItem').on('click','.add',function(){
+		$(this).text('已加入').addClass('complete');
+		var carModelId = $(this).attr('data-role');	
+		var timestamp1 = Date.parse(new Date());
+		var values1 = ['carSeriesId','timestamp','carModelId'];
+		var data1 = {'carSeriesId':id,'timestamp':timestamp1,'carModelId':carModelId};
+		var sign1 = doSign(values1,data1);					
+		$.ajax({
+		    type : "post",
+		    url : 'http://yema.hangtuosoft.com/app/addCarContrast.action', 
+		    dataType : "json",
+		    data:{'carSeriesId':id,'carModelId':carModelId,'timestamp':timestamp1,'sign':sign1},
+		    success : function(data){					    	
+			    if(data.status == 1){
+			    }
+			 } 	      
+	    });		  
+	})  
+}
+</script>
+</body>
+</html>

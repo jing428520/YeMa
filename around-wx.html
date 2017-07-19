@@ -1,0 +1,35 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta content="width=device-width, minimum-scale=1,initial-scale=1, maximum-scale=1, user-scalable=1;" id="viewport" name="viewport" />
+<!--离线应用的另一个技巧-->
+<meta content="yes" name="apple-mobile-web-app-capable" />
+<!--指定的iphone中safari顶端的状态条的样式-->
+<meta content="black" name="apple-mobile-web-app-status-bar-style" />
+<!--告诉设备忽略将页面中的数字识别为电话号码-->
+<meta content="telephone=no" name="format-detection" />
+<title>周边经纪人</title>
+<link rel="stylesheet" type="text/css" href="css/around.css">
+<style>
+	.around-main-call-erw{width: 230px;height: 230px;margin: 0 auto;}
+	.around-main-call-erw img{width: 100%;height: 100%;}
+</style>
+</head>
+<body background="#f2f3f7">
+<div class="index-bg">
+<!--主体部分-->
+	<div class="around-main-call">
+		<div class="around-main-call-erw"><img src=""></div>
+        <div class="around-main-call-text">扫描上方二维码</div>
+    </div>
+<!--主体部分-->
+</div>
+<script type="text/javascript" src="js/jquery-2.2.1.js"></script>
+<script src="js/index.js"></script>
+<script>
+    var wechatImgUrl = parseUrl().wechatImgUrl;
+    $('.around-main-call-erw img').attr('src','http://211.149.189.78/'+wechatImgUrl);
+</script>
+</body>
+</html>

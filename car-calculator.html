@@ -1,0 +1,119 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta content="width=device-width, minimum-scale=1,initial-scale=1, maximum-scale=1, user-scalable=1;" id="viewport" name="viewport" />
+<!--离线应用的另一个技巧-->
+<meta content="yes" name="apple-mobile-web-app-capable" />
+<!--指定的iphone中safari顶端的状态条的样式-->
+<meta content="black" name="apple-mobile-web-app-status-bar-style" />
+<!--告诉设备忽略将页面中的数字识别为电话号码-->
+<meta content="telephone=no" name="format-detection" />
+<title>购车计算器</title>
+<link rel="stylesheet" type="text/css" href="css/calculator.css">
+<link rel="stylesheet" href="css/LArea1.css">
+<script src="js/jquery-1.10.2.min.js"></script>
+<script src="js/md5.js"></script>
+<script src="js/index.js"></script>
+</head>
+<body style="background:#f2f3f7;">
+<div class="index-bg">
+<!--主体部分-->
+  <div class="calculator">
+    <div class="calculator-title">选择车型 或 输入价格点击计算</div>
+    <div class="calculator-con">
+       <div class="calculator-con-t">
+          <div class="calculator-con-t-name">车型</div>
+          <div class="calculator-con-t-img"><img src="images/jiantou.png"></div>
+          <div class="calculator-con-t-text">
+            <div class="content-block">
+                <input id="demo4" type="text" readonly  class="city" value="请选择车型" style="text-align:right; color:#666; width:100%;"/>
+                <input id="value4" type="hidden" value=""/>
+            </div>
+          </div>
+          <div class="clear"></div>
+        </div>
+        <div class="calculator-con-b">
+           <div class="calculator-con-t-name">裸车价格（元）</div>
+               <input onkeyup="value=value.replace( /^\d{3}\.\d{2}$/g,'')" onafterpaste="this.value=this.value.replace(/\D/g,'')" style="ime-mode:Disabled" maxlength="8" placeholder="请输入价格" id="calculator-price"/>
+           </div>
+        </div>
+    </div>
+    <div class="calculator-but">计算</div>
+  </div>
+</div>
+<div class="gearArea"></div>
+<script src="js/LAreaData1.js"></script>
+<script src="js/LAreaData2.js"></script>
+<script src="js/LArea5.js"></script>
+<script>
+$('.gearArea').css({'backgroundColor':'transparent','display':'none'});
+// 签名
+var timestamp = Date.parse(new Date());
+var values=['timestamp'];
+var data={'timestamp':timestamp};
+var sign = doSign(values,data);
+//通过车系获取车型 车型数据
+var LAreaData3=[{"id":"2","name":"","child":[]}];
+$.ajax({
+  type: "post",
+  url : url+'getCarSeriesCarModel.action',
+  data:{'timestamp':timestamp,'sign':sign},
+  dataType : "json",
+  success : function(data){
+    if(data.status = 1){
+      $.each(data.object,function(i,v){
+        $.each(v.carModelCustoms,function(x,y){
+          LAreaData3[0].child.push(y);
+          var area4 = new LArea();
+              area4.init({
+                  'trigger': '#demo4',
+                  'valueTo': '#value4',
+                  'keys': {
+                      id: 'carModelId',
+                      name: 'name'
+                  },
+                  'type': 1,
+                  'data': LAreaData3
+              });
+          })
+        })
+    }
+  },
+  error:function(){}
+});
+// 计算按钮
+$('.calculator-but').click(function(){
+   var price=0;
+   price=$('#calculator-price').val();
+   price=price.replace(',','');
+   var carModelId = $('#value4').val().substring(10) || '';
+   if(price==""){alert("请选择车型 或 输入价格点击计算");}
+   else{
+      window.location.href="car-calculator1.html?id="+carModelId+"&price="+price;
+    }
+});
+function price(){
+ var timestamp1 = Date.parse(new Date());
+ var carModelId = $('#value4').val().substring(10);
+  //通过id获取车辆信息
+  var values1=['timestamp','carModelId'];
+  var data1={'timestamp':timestamp1,'carModelId':carModelId};
+  var sign1 = doSign(values1,data1);
+  $.ajax({
+    type: "post",
+    url : url+'getCarModelByModelId.action',
+    data:{'timestamp':timestamp1,'sign':sign1,'carModelId':carModelId},
+    dataType : "json",
+    success : function(data){
+      if(data.status = 1){
+          var price = Math.round(data.object.price*10000);
+          $('#calculator-price').val(parseFloat(price).toLocaleString());
+      }
+    },
+    error:function(){}
+  });
+}
+</script>
+</body>
+</html>

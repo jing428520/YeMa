@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, minimum-scale=1.0, maximum-scale=1.0">
+<title>发口碑</title>
+<style type="text/css">
+*{margin: 0; padding: 0;}
+ul, li{list-style: none;}
+body{font-size: 14px; color: #333; }
+#wrapper{position: absolute; left: 0; right: 0; top: 0; bottom: 0;}
+#wrapper1{position: absolute; top: 0;bottom: 0;left:0; width: 90px; background: #F2F7FF; overflow: hidden;-webkit-tap-highlight-color: rgba(0,0,0,0);}
+#scroller1{position: absolute;z-index: 1; width: 100%; -webkit-tap-highlight-color: rgba(0,0,0,0);}
+#scroller1 li{padding:15px 10px;user-select：none;}
+
+/*#wrapper2{position: absolute;top:0;right:0;bottom:0;left:0;background: #fff; overflow: hidden;-webkit-tap-highlight-color: rgba(0,0,0,0);}*/
+#scroller2{position: absolute;z-index: 1; width: 100%; -webkit-tap-highlight-color: rgba(0,0,0,0); -webkit-transform:translate3d(0,0,0); }
+#scroller2 li{padding:10px; border-bottom: 1px solid #F0F1F2; overflow: hidden; }
+#scroller2 li img{float: left; width: 60px; height: 60px; margin-right: 10px; vertical-align: top;}
+#scroller2 li h4{margin-bottom: 6px;}
+#scroller2 li h4 a{font-size: 14px; color: #333; text-decoration: none; -webkit-tap-highlight-color: rgba(0,0,0,.3);}
+#scroller2 li p{ color: #868686;}
+
+#tips{text-align: center; color: #c4c4c4; font-size: 12px;}
+
+.inputs input{ border: 1px solid #c4c4c4; border-radius: 5px; height: 50px; padding: 0 5px; width: 96%; font-size: 16px;}
+</style>
+</head>
+<body>
+<div id="wrapper">
+	<div id="wrapper2">
+		<div id="scroller2">
+			<ul id="list" class="">
+			</ul>
+			<p id="tips">正在加载</p>
+		</div>
+	</div>
+</div>
+<script type="text/javascript" src="js/mScroll.js"></script>
+<script src="js/jquery-2.2.1.js"></script>
+<script type="text/javascript" src="js/index.js"></script>
+<script type="text/javascript" src="js/md5.js"></script>
+<script type="text/javascript">
+	
+	//左边菜单滚动
+    // var leftScroll = new mScroll('#wrapper1', {
+    //     display: true
+    // });
+    prise(1);   
+    var list = document.querySelector('#list'),
+        tips = document.querySelector('#tips'),
+        wrapper2 = document.getElementById('wrapper2');
+    var toDouble = function(n) {
+    	return n < 10 ? '0' + n : n;
+    };
+    var length = list.children.length;
+    if(length < 10) tips.innerHTML = '';
+    //右边内容滚动
+    var rightScroll = new mScroll(wrapper2, {
+    	display: true
+    });
+    rightScroll.$on('scrollEnd', function(){
+    	if (rightScroll.y === rightScroll.maxScrollY) {
+    		var len = list.children.length;
+            if (len >= 40) return tips.innerHTML = '已经加载完了'; //数据已经加载完
+            // 模拟加载数据(ajax)
+            for (var i = 1, html = ''; i <= 10; i++) {
+                html += '<li><img src="images/' + toDouble(len + i) + '.jpg" width="60" /><h4><a href="http://xw.qq.com/">新闻的标题</a></h4><p>这是一张有故事的图片' + (len + i) + '</p></li>';
+            }
+            list.innerHTML += html;
+            rightScroll.$refresh();
+    	}
+    });
+function prise(num){
+    var id='1fc6fcd3be7f11e6b69b5254007318bd';
+    var url = "http://211.149.189.78/app/";
+    var imgUrl = "http://211.149.189.78/";
+    var timestamp = Date.parse(new Date());
+    var values=['timestamp','beginRow','carSeriesId'];
+    var data={'timestamp':timestamp,'beginRow':num,'carSeriesId':id};
+    var sign = doSign(values,data);
+    $.ajax({
+        type : "post",
+        url : url+'commentList.action', 
+        dataType : "json",
+        data:{"beginRow":num,'timestamp':timestamp,'sign':sign,'carSeriesId':id},
+        success : function(data){
+            if(data.status == 1){
+                console.log(data);
+                $.each(data.object.dataList,function(i,v){
+                $('<li><img src="'+v.imgUrl+'" /><h4><a href="http://xw.qq.com/">新闻的标题</a></h4><p>这是一张有故事的图片1</p></li>').appendTo($('#list'));
+
+            } 
+         )}
+       }    
+    }); 
+}
+        
+
+</script>
+
+</body>
+</html>

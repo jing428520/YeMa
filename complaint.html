@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta content="width=device-width, minimum-scale=1,initial-scale=1, maximum-scale=1, user-scalable=no;" id="viewport" name="viewport" />
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="format-detection" content="telephone=no">
+    <title>投诉</title>
+    <link rel="stylesheet" type="text/css" href="css/webuploader.css">
+    <link rel="stylesheet" href="css/LArea2.css">
+    <link rel="stylesheet" href="css/index.css">
+    <link rel="stylesheet" href="css/style1.css">
+    <style>
+    #demo9,#demo10,#demo11,#demo12 {background: url(images/jiantou.png) no-repeat;background-position: 100%;}
+    </style>
+</head>
+<body>
+    <div id="buy_car">
+        <ul class="buy_car">
+            <li class="buy_car_list">
+                <span>姓名</span>
+                <input type="text" class="car_type_text" placeholder="请填写姓名" style="margin-left: 0.9rem" id="input_name">
+            </li>
+            <li class="buy_car_list">
+                <span>性别</span>
+                <input type="text" class="car_type_text" placeholder="请选择性别"  id="demo9" style="margin-left: 0.9rem;width: 70%;" readonly="">
+                <input id="value9" type="hidden" value=""/>
+            </li>
+            <li class="buy_car_list">
+                <span>电话</span>
+                <input type="tel" maxlength="11" class="car_type_text" placeholder="请输入您的手机号码" style="margin-left: 0.9rem" id="phone-id" onkeyup="value=value.replace(/[^\d]/g,'')" onbeforepaste="clipboardData.setData('text',clipboardData.getData('text').replace(/[^\d]/g,''))">
+            </li>
+            <li class="buy_car_list">
+                <span>所在地区</span>
+                <input type="text" class="car_type_text" placeholder="请选择所在地址" id="demo10" readonly="" style="width: 70%;">
+                <input id="value10" type="hidden" value=""/>
+            </li>
+        </ul>
+        <div class="hr_50"></div>
+        <div class="complaint clearfix">
+            <span class="fl">投诉类型</span>
+            <div class="sys_item_spec">
+                <dl class="sys_item_specpara" data-sid="1">
+                    <dd>
+                        <ul class="sys_spec_text">
+                        </ul> 
+                    </dd>
+                </dl>
+            </div> 
+        </div>
+        <div class="hr_50" style="padding-left:0.23rem;line-height: 0.5rem;font-size: 0.28rem;box-sizing: border-box;">问题描述</div>
+        <div class="reservation-main-xinxi" style="margin-top:0;">
+            <textarea class="reservation-main-textarea" name="content" placeholder="请描述一下您的问题" id="knote"></textarea>
+        </div>
+    </div>
+    <div class="dem">
+        <div id="uploader" class="webuploader-container">
+            <div class="queueList">
+                <ul class="filelist">
+                </ul>
+            </div>
+            <div id="dndArea" class="placeholder element-invisible" style="margin-top:5px;-webkit-tap-highlight-color:rgba(0,0,0,0);">
+                <div id="filePicker" class="webuploader-container" style="-webkit-tap-highlight-color:rgba(0,0,0,0);">
+                    <div class="webuploader-pick" style="-webkit-tap-highlight-color:rgba(0,0,0,0);"></div>
+                    <div id="rt_rt_1b1ofmbub12qilg019c013cjngt6" style="position: absolute; top: 20px; left: 53px; height: 44px; overflow: hidden; bottom: auto; right: auto;-webkit-tap-highlight-color:rgba(0,0,0,0);">
+                        <input type="file" name="file" class="webuploader-element-invisible" multiple="multiple" accept="image/*" style="-webkit-tap-highlight-color:rgba(0,0,0,0);">
+                        <label style="opacity: 0; width: 100%; height: 100%; display: block; cursor: pointer; background: rgb(255, 255, 255);-webkit-tap-highlight-color:rgba(0,0,0,0);"></label>
+                    </div>
+                </div>
+                <p style="padding-left: 20px;">最多可选3张</p>
+            </div>
+        <div id="rt_rt_1b1ofmbu11qtf9av1ujf5fg1gka1" style="position: absolute; top: -175px; left: 0px; width: 86px; height: 40px; overflow: hidden; bottom: auto; right: auto;"><input type="file" name="file" class="webuploader-element-invisible" multiple="multiple" accept="image/*"><label style="opacity: 0; width: 100%; height: 100%; display: block; cursor: pointer; background: rgb(255, 255, 255);"></label></div></div>
+    </div>
+    <div class="car_push reservation-main-sub" style="margin_top:1.18rem">提交</div>
+    <div class="gearArea"></div>
+  <script src="js/jquery-2.2.1.js"></script>
+  <script type="text/javascript" src="js/webuploader.min.js"></script>
+  <script type="text/javascript" src="js/upload.js?v=1.0"></script>
+  <script src="js/LAreaData1.js"></script>
+  <script src="js/LArea1.js"></script>
+  <script src="js/md5.js"></script>
+  <script src="js/index.js"></script>
+  <script>
+    $('.gearArea').css({'backgroundColor':'transparent','display':'none'});
+    var LAreaData2=[{"id":"2","name":"&nbsp;","child":[{"id":"2288","name":"男"},{"id":"2301","name":"女"}]}];
+    var area1 = new LArea2();
+    area1.init({
+        'trigger': '#demo9', 
+        'valueTo': '#value9',
+        'keys': {
+            id: 'id',
+            name: 'name'
+        }, 
+        'type': 1, 
+        'data': LAreaData2 
+    }); 
+    var area = new LAreas();
+    area.init({
+        'trigger': '#demo10', 
+        'valueTo': '#value10',
+        'keys': {
+            id: 'id',
+            name: 'name'
+        }, 
+        'type': 1, 
+        'data': LAreaData 
+    });
+//商品规格选择
+$(function(){
+    var timestamp1 = Date.parse(new Date());
+    var values1=['timestamp','type'];
+    var data1={"timestamp":timestamp1,"type":2};
+    var sign1 = doSign(values1,data1);
+    $.ajax({
+        type:"POST",
+        url:url+'helpProgressType.action',
+        dataType:"json",
+        data:{
+            "type":2,
+            "timestamp":timestamp1,
+            "sign":sign1
+        },
+        success: function(data){      
+            if(data.status == 1){
+                $.each(data.object,function(i,v){
+                    $('<li style="-webkit-tap-highlight-color:rgba(0,0,0,0);"><a href="javascript:;" name="complaintType" title="'+v.name+'">'+v.name+'</a><i></i></li>').appendTo($('.sys_spec_text'))
+                })
+                $(".sys_item_spec .sys_item_specpara").each(function(){
+                    var i=$(this);
+                    var p=i.find("ul>li");
+                    p.click(function(){
+                        if(!!$(this).hasClass("selected")){
+                            $(this).removeClass("selected");
+                            i.removeAttr("data-attrval");
+                        }else{
+                            $(this).addClass("selected").siblings("li").removeClass("selected");
+                            i.attr("data-attrval",$(this).attr("data-aid"))
+                        }                        
+                    })
+                })
+                            
+            }         
+        }   
+    }); 
+})
+// addComplaintCustomer.action 客户投诉
+$('.reservation-main-sub').click(function(){
+    var imgUrl1 = $('#dem li').eq(0).attr('data-img') || "";
+    var imgUrl2 = $('#dem li').eq(1).attr('data-img') || "";
+    var imgUrl3 = $('#dem li').eq(2).attr('data-img') || "";
+    var kname = $('#input_name').val();
+    var ksex=$('#demo9').val().replace(/^\s+|\s+$/g, '');
+    var kphone=$('#phone-id').val();
+    var kaddr=$('#demo10').val();
+    var knote=$('#knote').val();
+    var ktype=$('.selected').text();
+    if(kname==""){alert("请输入姓名！");return false; 
+    }else if(kname){
+        var re=/^([\u4E00-\u9FA5]|[\uFE30-\uFFA0]|[a-z])*$/gi;
+        if(!re.test(kname)){alert("请输入正确的姓名！");return false;}       
+    }
+    if(ksex==""){alert("请选择性别！");return false;}
+    if(ksex=="男"){ksex=1;}else{ksex=0;} 
+    if(kphone==""){alert("请填写手机号码！");return false;
+    }else if(!(/^1[34578]\d{9}$/.test(kphone))){ 
+        alert("手机号码有误，请重填");
+        return false;  
+    }
+    if(knote==""){alert("请输入您的问题！");return false;}
+    if(ktype==""){alert("请选择投诉类型！");return false;}
+    if(kaddr==""){alert("请选择所在地区！");return false;}
+    var timestamp = Date.parse(new Date());
+    var values=['timestamp','name','sex','phone','address','content','complaintType'];
+    var data={"timestamp":timestamp,"name":kname,"sex":ksex,"phone":kphone,"address":kaddr,"content":knote,"complaintType":ktype};
+    console.log(values);
+    console.log(data);
+    var sign = doSign(values,data); 
+    $.ajax({
+        type:"POST",
+        url:url+'addComplaintCustomer.action',
+        dataType:"json",
+        data:{
+            "name":kname,
+            "sex":ksex,
+            "phone":kphone,
+            "address":kaddr,
+            "content":knote,
+            "complaintType":ktype,
+            "imgUrl1":imgUrl1,
+            "imgUrl2":imgUrl2,
+            "imgUrl3":imgUrl3,
+            "timestamp":timestamp,
+            "sign":sign
+        },
+        success: function(data){      
+            if(data.status == 1){
+                alert('提交成功！');
+                close_wechat();
+                function close_wechat(){
+                    if( window.confirm('你确定要离开微网站吗?') ){
+                        WeixinJSBridge.call("closeWindow");
+                    }
+                }
+            }         
+        }   
+    });
+});
+</script>
+</body>
+</html> 

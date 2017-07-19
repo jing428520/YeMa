@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta content="width=device-width, minimum-scale=1,initial-scale=1, maximum-scale=1, user-scalable=no;" id="viewport" name="viewport" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="format-detection" content="telephone=no">
+	<title>我要买车</title>
+	<link rel="stylesheet" href="css/LArea2.css">
+	<link rel="stylesheet" href="css/index.css">
+	<style>
+      #demo9,#demo10,#demo11,#demo12 {background: url(images/jiantou.png) no-repeat;background-position: 100%;}
+	</style>
+</head>
+<body>
+	<div id="buy_car">
+		<ul class="buy_car">
+			<li class="buy_car_list">
+				<span>姓名</span>
+				<input type="text" class="car_type_text" placeholder="请填写姓名" style="margin-left: 1.3rem" id="input_name">
+		    </li>
+		<li class="buy_car_list">
+			<span>性别</span>
+			<input type="text" class="car_type_text" placeholder="请选择性别"  id="demo9" style="margin-left: 1.3rem" readonly="">
+            <input id="value9" type="hidden" value=""/>
+		</li>
+		<li class="buy_car_list">
+			<span>电话</span>
+			<input type="tel" maxlength="11" class="car_type_text" placeholder="请输入您的手机号码" style="margin-left: 1.3rem" id="phone-id" onkeyup="value=value.replace(/[^\d]/g,'')" onbeforepaste="clipboardData.setData('text',clipboardData.getData('text').replace(/[^\d]/g,''))">
+		</li>
+		<li class="buy_car_list">
+			<span>所在地区</span>
+			<input type="text" class="car_type_text" placeholder="请选择所在地址" id="demo10" readonly="">
+			<input id="value10" type="hidden" value=""/>
+		</li>
+		<li class="buy_car_list">
+			<span>意向车型</span>
+			<input type="text" class="car_type_text" placeholder="请选择意向车型" id="demo11" readonly="">
+			<input id="value11" type="hidden" value=""/>
+		</li>
+		<li class="buy_car_list">
+			<span>心理价位</span>
+			<!-- <input   maxlength="8"> -->
+       <input type="number" maxlength="8" onkeyup="value=value.replace(/[^\d]/g,'')" onbeforepaste="clipboardData.setData('text',clipboardData.getData('text').replace(/[^\d]/g,''))" style="ime-mode:Disabled"  class="car_type_text" id="psychologicalPrice" placeholder="请输入您的心里价位"  />	 
+		</li>
+		<li class="buy_car_list">
+			<span>获知途径</span>
+			<input type="text" class="car_type_text" placeholder="请选择获知途径" id="demo12" readonly="">
+			<input id="value12" type="hidden" value=""/>
+		</li>
+		</ul>
+	</div>
+	<div class="car_push" style="margin_top:1.18rem">
+	 提交
+	</div>
+	<div class="gearArea"></div>
+	<script src="js/jquery-1.10.2.min.js"></script>
+	<script src="js/LAreaData1.js"></script>
+  <script src="js/LArea1.js"></script>
+  <script src="js/md5.js"></script>
+  <script src="js/index.js"></script>
+  <script>
+    $('.gearArea').css({'backgroundColor':'transparent','display':'none'});
+    var LAreaData2=[{"id":"2","name":"&nbsp;","child":[{"id":"2288","name":"男"},{"id":"2301","name":"女"}]}];
+    var area1 = new LArea2();
+    area1.init({
+        'trigger': '#demo9', 
+        'valueTo': '#value9',
+        'keys': {
+            id: 'id',
+            name: 'name'
+        }, 
+        'type': 1, 
+        'data': LAreaData2 
+    });	
+    var LAreaData6=[{"id":"2","name":"&nbsp;","child":[{"id":"12","name":"朋友"},{"id":"24","name":"广告"},{"id":"36","name":"销售"}]}];
+    var area2 = new LArea2();
+    area2.init({
+        'trigger': '#demo12', 
+        'valueTo': '#value12',
+        'keys': {
+            id: 'id',
+            name: 'name'
+        }, 
+        'type': 1, 
+        'data': LAreaData6 
+    });	
+    var area = new LAreas();
+    area.init({
+        'trigger': '#demo10', 
+        'valueTo': '#value10',
+        'keys': {
+            id: 'id',
+            name: 'name'
+        }, 
+        'type': 1, 
+        'data': LAreaData 
+    });
+  var id = parseUrl().id;
+  var carModelId=parseUrl().carModelId;
+  var timestamp = Date.parse(new Date());
+  var values=['timestamp','carModelId'];
+  var data={'timestamp':timestamp,'carModelId':carModelId};
+  var sign = doSign(values,data);
+   if(carModelId){
+       $.ajax({
+       type: "post",
+       url : url+'getCarModelByModelId.action',
+       data:{'timestamp':timestamp,'sign':sign,'carModelId':carModelId},
+       dataType : "json",
+       success : function(data){
+         if(data.status = 1){
+             console.log(data);
+             var name = data.object.name;
+             $('#demo11').val(name);
+         }
+       },
+       error:function(){}
+     });
+  }
+	//通过车系获取车型
+  var timestamp1 = Date.parse(new Date());
+  var LAreaData3=[{"id":"2","name":"","child":[]}];
+  var values1=['timestamp','carSeriesId'];
+  var data1={'timestamp':timestamp1,'carSeriesId':id};
+  var sign1 = doSign(values1,data1);
+	$.ajax({
+		type: "post",
+		url : url+'getCarModelByCarSeries.action', 
+		data:{'carSeriesId':id,'timestamp':timestamp1,'sign':sign1},
+		dataType : "json",
+		success : function(data){
+			if(data.status = 1){
+				$.each(data.object,function(i,v){
+				LAreaData3[0].child.push(v);	
+				var area6 = new LArea10();
+				    area6.init({
+				        'trigger': '#demo11',
+				        'valueTo': '#value11',
+				        'keys': {
+				            id: 'carModelId',
+				            name: 'name'
+				        },
+				        'type': 1,
+				        'data': LAreaData3
+				    });
+				})
+				
+			} 
+		},
+		error:function(){}
+	});
+	 $("#phone-id").keydown(function(event) {  
+        var reg = /^\d{11}$/;  
+        var value = $(this).val();  
+        var e = event || window.event || arguments.callee.caller.arguments[0];   
+        if(e.keyCode === 8) {  return true; }    
+        if(e.keyCode == 32) {  return false; } 
+        if(reg.test(value)) { return false;}              
+    });
+   $("#psychologicalPrice").keydown(function(event) {  
+        var reg = /^\d{8}$/;  
+        var value = $(this).val();  
+        var e = event || window.event || arguments.callee.caller.arguments[0];   
+        if(e.keyCode === 8) {  return true; }    
+        if(e.keyCode == 32) {  return false; } 
+        if(reg.test(value)) { return false;}              
+    });
+   // ajax
+     $('.car_push').on('click',function(){
+      var timestamp2 = Date.parse(new Date());
+      var carModelId1 =$('#value11').val().substring(10) || carModelId;
+      var name = $('#input_name').val();
+      var sex = $('#demo9').val().replace(/^\s+|\s+$/g, '');
+      var phone =  $("#phone-id").val();
+      var address=$("#demo10").val();
+      var psychologicalPrice =$("#psychologicalPrice").val();
+      var infoSource = $('#demo12').val().replace(/^\s+|\s+$/g, '');
+      if(name==""){
+          alert("请输入姓名！");
+          return false;
+      }else if(name){
+          var re=/^([\u4E00-\u9FA5]|[\uFE30-\uFFA0]|[a-z])*$/gi;
+          if(!re.test(name)){
+            alert("请输入正确的姓名！");
+            return false;
+          }
+      }
+      if( sex == ""){alert("请选择性别！"); return false;}else if( sex == "男"){sex = 1}else{sex = 0}
+      if(phone==""){ alert("请填写手机号码！"); return false;  
+      }else if(!(/^1[34578]\d{9}$/.test(phone))){alert("手机号码有误，请重填"); return false;} 
+      if(address==""){alert("请选择地址信息！");return false;}
+      if($('#demo11').val() == ""){alert('请选择意向车型!'); return false;}
+      if(psychologicalPrice==""){alert("请填写您的心里价位！");return false;}
+      if($('#demo12').val() == ""){alert('请选择获知途径!'); return false;} 
+      if( infoSource == "广告"){infoSource = 6}else if(infoSource == "朋友"){infoSource = 7}else{infoSource = 8};
+      console.log(infoSource);
+        var values2=['timestamp','carSeriesId','carModelId','name','sex','phone','address','psychologicalPrice','infoSource'];
+        var data2={'timestamp':timestamp2,'carSeriesId':id,'carModelId':carModelId1,'name':name,'sex':sex,'phone':phone,'address':address,'psychologicalPrice':psychologicalPrice,'infoSource':infoSource};
+        var sign2 = doSign(values2,data2);
+      $.ajax({
+          type: "post",
+          url : url+'buyCar.action', 
+          data:{
+            'carSeriesId':id,
+            'carModelId':carModelId1,
+            'name':name,
+            'sex':sex,
+            'phone':phone,
+            'address':address,
+            'psychologicalPrice':psychologicalPrice,
+            'infoSource':infoSource,
+            'timestamp':timestamp2,
+            'sign':sign2
+          },
+          dataType : "json",
+          success : function(data){
+            if(data.status == 1){
+               alert('提交成功');
+               window.location.href="carSummary.html?id="+id;
+            }      
+          },
+          error:function(){}
+        });
+     })
+    </script>
+</body>
+</html> 
